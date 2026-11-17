@@ -1,0 +1,2414 @@
+{
+  "info": {
+    "_postman_id": "d11a2dbf-9f28-479d-a95c-ab835c24aa68",
+    "name": "Palmeiras API - Entrega Final",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Configure adminKey localmente antes de executar. Não compartilhe credenciais. Para testar localmente, altere baseUrl para http://localhost:8080 e use a chave administrativa local."
+  },
+  "item": [
+    {
+      "name": "01 Gerar chave (admin)",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.collectionVariables.set(\"runId\", pm.variables.replaceIn(\"{{$guid}}\"));"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));\nif(pm.response.code===201){pm.collectionVariables.set(\"apiKey\",pm.response.json().apiKey);pm.collectionVariables.set(\"keyId\",pm.response.json().id);}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/hal+json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "X-Idempotency-Key",
+            "value": "{{runId}}-key"
+          },
+          {
+            "key": "X-API-Key",
+            "value": "{{adminKey}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"usuario\": \"demo\"}",
+          "options": {
+            "raw": {
+              "language": "text"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api-keys",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api-keys"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Criar estadios",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+              "if(pm.response.code===201)pm.collectionVariables.set(\"estadiosId\",pm.response.json().id);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/hal+json"
+          },
+          {
+            "key": "X-API-Key",
+            "value": "{{apiKey}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "X-Idempotency-Key",
+            "value": "{{runId}}-estadios"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"nome\": \"Allianz Parque\", \"endereco\": \"São Paulo\"}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/estadios",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "estadios"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Repetir estadios",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+              "pm.test(\"Mesmo ID\",()=>pm.expect(String(pm.response.json().id)).to.eql(pm.collectionVariables.get(\"estadiosId\").toString()));pm.test(\"Replay\",()=>pm.expect(pm.response.headers.get(\"Idempotent-Replayed\")).to.eql(\"true\"));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/hal+json"
+          },
+          {
+            "key": "X-API-Key",
+            "value": "{{apiKey}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "X-Idempotency-Key",
+            "value": "{{runId}}-estadios"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"nome\": \"Allianz Parque\", \"endereco\": \"São Paulo\"}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/estadios",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "estadios"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Listar estadios",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/hal+json"
+          },
+          {
+            "key": "X-API-Key",
+            "value": "{{apiKey}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/estadios?page=0&size=5",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "estadios"
+          ],
+          "query": [
+            {
+              "key": "page",
+              "value": "0"
+            },
+            {
+              "key": "size",
+              "value": "5"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Buscar estadios",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/hal+json"
+          },
+          {
+            "key": "X-API-Key",
+            "value": "{{apiKey}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/estadios/buscar?nome=Allianz&page=0&size=5",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "estadios",
+            "buscar"
+          ],
+          "query": [
+            {
+              "key": "nome",
+              "value": "Allianz"
+            },
+            {
+              "key": "page",
+              "value": "0"
+            },
+            {
+              "key": "size",
+              "value": "5"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Por ID estadios",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/hal+json"
+          },
+          {
+            "key": "X-API-Key",
+            "value": "{{apiKey}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/estadios/{{estadiosId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "estadios",
+            "{{estadiosId}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Atualizar estadios",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/hal+json"
+          },
+          {
+            "key": "X-API-Key",
+            "value": "{{apiKey}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"nome\": \"Allianz Parque\", \"endereco\": \"São Paulo\"}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/estadios/{{estadiosId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "estadios",
+            "{{estadiosId}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Criar campeonatos",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+              "if(pm.response.code===201)pm.collectionVariables.set(\"campeonatosId\",pm.response.json().id);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/hal+json"
+          },
+          {
+            "key": "X-API-Key",
+            "value": "{{apiKey}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "X-Idempotency-Key",
+            "value": "{{runId}}-campeonatos"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"nome\": \"Brasileirão\"}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/campeonatos",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "campeonatos"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Repetir campeonatos",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+              "pm.test(\"Mesmo ID\",()=>pm.expect(String(pm.response.json().id)).to.eql(pm.collectionVariables.get(\"campeonatosId\").toString()));pm.test(\"Replay\",()=>pm.expect(pm.response.headers.get(\"Idempotent-Replayed\")).to.eql(\"true\"));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/hal+json"
+          },
+          {
+            "key": "X-API-Key",
+            "value": "{{apiKey}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "X-Idempotency-Key",
+            "value": "{{runId}}-campeonatos"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"nome\": \"Brasileirão\"}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/campeonatos",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "campeonatos"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Listar campeonatos",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/hal+json"
+          },
+          {
+            "key": "X-API-Key",
+            "value": "{{apiKey}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/campeonatos?page=0&size=5",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "campeonatos"
+          ],
+          "query": [
+            {
+              "key": "page",
+              "value": "0"
+            },
+            {
+              "key": "size",
+              "value": "5"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Buscar campeonatos",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/hal+json"
+          },
+          {
+            "key": "X-API-Key",
+            "value": "{{apiKey}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/campeonatos/buscar?nome=Brasileir&page=0&size=5",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "campeonatos",
+            "buscar"
+          ],
+          "query": [
+            {
+              "key": "nome",
+              "value": "Brasileir"
+            },
+            {
+              "key": "page",
+              "value": "0"
+            },
+            {
+              "key": "size",
+              "value": "5"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Por ID campeonatos",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/hal+json"
+          },
+          {
+            "key": "X-API-Key",
+            "value": "{{apiKey}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/campeonatos/{{campeonatosId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "campeonatos",
+            "{{campeonatosId}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Atualizar campeonatos",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/hal+json"
+          },
+          {
+            "key": "X-API-Key",
+            "value": "{{apiKey}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"nome\": \"Brasileirão\"}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/campeonatos/{{campeonatosId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "campeonatos",
+            "{{campeonatosId}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Criar equipes",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+              "if(pm.response.code===201)pm.collectionVariables.set(\"equipesId\",pm.response.json().id);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/hal+json"
+          },
+          {
+            "key": "X-API-Key",
+            "value": "{{apiKey}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "X-Idempotency-Key",
+            "value": "{{runId}}-equipes"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"nome\": \"Palmeiras\", \"estadioId\": {{estadiosId}}, \"campeonatoIds\": [{{campeonatosId}}]}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/equipes",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "equipes"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Repetir equipes",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+              "pm.test(\"Mesmo ID\",()=>pm.expect(String(pm.response.json().id)).to.eql(pm.collectionVariables.get(\"equipesId\").toString()));pm.test(\"Replay\",()=>pm.expect(pm.response.headers.get(\"Idempotent-Replayed\")).to.eql(\"true\"));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/hal+json"
+          },
+          {
+            "key": "X-API-Key",
+            "value": "{{apiKey}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "X-Idempotency-Key",
+            "value": "{{runId}}-equipes"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"nome\": \"Palmeiras\", \"estadioId\": {{estadiosId}}, \"campeonatoIds\": [{{campeonatosId}}]}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/equipes",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "equipes"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Listar equipes",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/hal+json"
+          },
+          {
+            "key": "X-API-Key",
+            "value": "{{apiKey}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/equipes?page=0&size=5",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "equipes"
+          ],
+          "query": [
+            {
+              "key": "page",
+              "value": "0"
+            },
+            {
+              "key": "size",
+              "value": "5"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Buscar equipes",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/hal+json"
+          },
+          {
+            "key": "X-API-Key",
+            "value": "{{apiKey}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/equipes/buscar?nome=Palmeiras&page=0&size=5",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "equipes",
+            "buscar"
+          ],
+          "query": [
+            {
+              "key": "nome",
+              "value": "Palmeiras"
+            },
+            {
+              "key": "page",
+              "value": "0"
+            },
+            {
+              "key": "size",
+              "value": "5"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Por ID equipes",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/hal+json"
+          },
+          {
+            "key": "X-API-Key",
+            "value": "{{apiKey}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/equipes/{{equipesId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "equipes",
+            "{{equipesId}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Atualizar equipes",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/hal+json"
+          },
+          {
+            "key": "X-API-Key",
+            "value": "{{apiKey}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"nome\": \"Palmeiras\", \"estadioId\": {{estadiosId}}, \"campeonatoIds\": [{{campeonatosId}}]}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/equipes/{{equipesId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "equipes",
+            "{{equipesId}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Criar jogadores",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+              "if(pm.response.code===201)pm.collectionVariables.set(\"jogadoresId\",pm.response.json().id);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/hal+json"
+          },
+          {
+            "key": "X-API-Key",
+            "value": "{{apiKey}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "X-Idempotency-Key",
+            "value": "{{runId}}-jogadores"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"nome\": \"Jogador demonstração\", \"posicao\": \"MEIA\", \"equipeId\": {{equipesId}}}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/jogadores",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "jogadores"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Repetir jogadores",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+              "pm.test(\"Mesmo ID\",()=>pm.expect(String(pm.response.json().id)).to.eql(pm.collectionVariables.get(\"jogadoresId\").toString()));pm.test(\"Replay\",()=>pm.expect(pm.response.headers.get(\"Idempotent-Replayed\")).to.eql(\"true\"));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/hal+json"
+          },
+          {
+            "key": "X-API-Key",
+            "value": "{{apiKey}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "X-Idempotency-Key",
+            "value": "{{runId}}-jogadores"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"nome\": \"Jogador demonstração\", \"posicao\": \"MEIA\", \"equipeId\": {{equipesId}}}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/jogadores",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "jogadores"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Listar jogadores",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/hal+json"
+          },
+          {
+            "key": "X-API-Key",
+            "value": "{{apiKey}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/jogadores?page=0&size=5",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "jogadores"
+          ],
+          "query": [
+            {
+              "key": "page",
+              "value": "0"
+            },
+            {
+              "key": "size",
+              "value": "5"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Buscar jogadores",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/hal+json"
+          },
+          {
+            "key": "X-API-Key",
+            "value": "{{apiKey}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/jogadores/buscar?nome=Jogador&page=0&size=5",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "jogadores",
+            "buscar"
+          ],
+          "query": [
+            {
+              "key": "nome",
+              "value": "Jogador"
+            },
+            {
+              "key": "page",
+              "value": "0"
+            },
+            {
+              "key": "size",
+              "value": "5"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Por ID jogadores",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/hal+json"
+          },
+          {
+            "key": "X-API-Key",
+            "value": "{{apiKey}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/jogadores/{{jogadoresId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "jogadores",
+            "{{jogadoresId}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Atualizar jogadores",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/hal+json"
+          },
+          {
+            "key": "X-API-Key",
+            "value": "{{apiKey}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"nome\": \"Jogador demonstração\", \"posicao\": \"MEIA\", \"equipeId\": {{equipesId}}}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/jogadores/{{jogadoresId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "jogadores",
+            "{{jogadoresId}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Criar contratos",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+              "if(pm.response.code===201)pm.collectionVariables.set(\"contratosId\",pm.response.json().id);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/hal+json"
+          },
+          {
+            "key": "X-API-Key",
+            "value": "{{apiKey}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "X-Idempotency-Key",
+            "value": "{{runId}}-contratos"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"salario\": 850000, \"duracaoMeses\": 24, \"jogadorId\": {{jogadoresId}}}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/contratos",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "contratos"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Repetir contratos",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+              "pm.test(\"Mesmo ID\",()=>pm.expect(String(pm.response.json().id)).to.eql(pm.collectionVariables.get(\"contratosId\").toString()));pm.test(\"Replay\",()=>pm.expect(pm.response.headers.get(\"Idempotent-Replayed\")).to.eql(\"true\"));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/hal+json"
+          },
+          {
+            "key": "X-API-Key",
+            "value": "{{apiKey}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "X-Idempotency-Key",
+            "value": "{{runId}}-contratos"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"salario\": 850000, \"duracaoMeses\": 24, \"jogadorId\": {{jogadoresId}}}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/contratos",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "contratos"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Listar contratos",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/hal+json"
+          },
+          {
+            "key": "X-API-Key",
+            "value": "{{apiKey}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/contratos?page=0&size=5",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "contratos"
+          ],
+          "query": [
+            {
+              "key": "page",
+              "value": "0"
+            },
+            {
+              "key": "size",
+              "value": "5"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Buscar contratos",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/hal+json"
+          },
+          {
+            "key": "X-API-Key",
+            "value": "{{apiKey}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/contratos/buscar?duracaoMeses=24&page=0&size=5",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "contratos",
+            "buscar"
+          ],
+          "query": [
+            {
+              "key": "duracaoMeses",
+              "value": "24"
+            },
+            {
+              "key": "page",
+              "value": "0"
+            },
+            {
+              "key": "size",
+              "value": "5"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Por ID contratos",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/hal+json"
+          },
+          {
+            "key": "X-API-Key",
+            "value": "{{apiKey}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/contratos/{{contratosId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "contratos",
+            "{{contratosId}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Atualizar contratos",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/hal+json"
+          },
+          {
+            "key": "X-API-Key",
+            "value": "{{apiKey}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"salario\": 850000, \"duracaoMeses\": 24, \"jogadorId\": {{jogadoresId}}}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/contratos/{{contratosId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "contratos",
+            "{{contratosId}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Criar salarios",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+              "if(pm.response.code===201)pm.collectionVariables.set(\"salariosId\",pm.response.json().id);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/hal+json"
+          },
+          {
+            "key": "X-API-Key",
+            "value": "{{apiKey}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "X-Idempotency-Key",
+            "value": "{{runId}}-salarios"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"valor\": 15000, \"cargo\": \"Analista\"}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/salarios",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "salarios"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Repetir salarios",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+              "pm.test(\"Mesmo ID\",()=>pm.expect(String(pm.response.json().id)).to.eql(pm.collectionVariables.get(\"salariosId\").toString()));pm.test(\"Replay\",()=>pm.expect(pm.response.headers.get(\"Idempotent-Replayed\")).to.eql(\"true\"));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/hal+json"
+          },
+          {
+            "key": "X-API-Key",
+            "value": "{{apiKey}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "X-Idempotency-Key",
+            "value": "{{runId}}-salarios"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"valor\": 15000, \"cargo\": \"Analista\"}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/salarios",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "salarios"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Listar salarios",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/hal+json"
+          },
+          {
+            "key": "X-API-Key",
+            "value": "{{apiKey}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/salarios?page=0&size=5",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "salarios"
+          ],
+          "query": [
+            {
+              "key": "page",
+              "value": "0"
+            },
+            {
+              "key": "size",
+              "value": "5"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Buscar salarios",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/hal+json"
+          },
+          {
+            "key": "X-API-Key",
+            "value": "{{apiKey}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/salarios/buscar?cargo=Analista&page=0&size=5",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "salarios",
+            "buscar"
+          ],
+          "query": [
+            {
+              "key": "cargo",
+              "value": "Analista"
+            },
+            {
+              "key": "page",
+              "value": "0"
+            },
+            {
+              "key": "size",
+              "value": "5"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Por ID salarios",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/hal+json"
+          },
+          {
+            "key": "X-API-Key",
+            "value": "{{apiKey}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/salarios/{{salariosId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "salarios",
+            "{{salariosId}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Atualizar salarios",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/hal+json"
+          },
+          {
+            "key": "X-API-Key",
+            "value": "{{apiKey}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"valor\": 15000, \"cargo\": \"Analista\"}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/salarios/{{salariosId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "salarios",
+            "{{salariosId}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Sem chave",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 401\", () => pm.response.to.have.status(401));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/hal+json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/salarios",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "salarios"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Versão 1",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/hal+json"
+          },
+          {
+            "key": "X-API-Key",
+            "value": "{{apiKey}}"
+          },
+          {
+            "key": "X-API-Version",
+            "value": "1"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/jogadores/{{jogadoresId}}/resumo",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "jogadores",
+            "{{jogadoresId}}",
+            "resumo"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Versão 2",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/hal+json"
+          },
+          {
+            "key": "X-API-Key",
+            "value": "{{apiKey}}"
+          },
+          {
+            "key": "X-API-Version",
+            "value": "2"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/jogadores/{{jogadoresId}}/resumo",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "jogadores",
+            "{{jogadoresId}}",
+            "resumo"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Versão inválida",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/hal+json"
+          },
+          {
+            "key": "X-API-Key",
+            "value": "{{apiKey}}"
+          },
+          {
+            "key": "X-API-Version",
+            "value": "99"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/jogadores/{{jogadoresId}}/resumo",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "jogadores",
+            "{{jogadoresId}}",
+            "resumo"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Validação",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/hal+json"
+          },
+          {
+            "key": "X-API-Key",
+            "value": "{{apiKey}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"nome\": \"\", \"endereco\": \"\"}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/estadios",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "estadios"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Não encontrado",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 404\", () => pm.response.to.have.status(404));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/hal+json"
+          },
+          {
+            "key": "X-API-Key",
+            "value": "{{apiKey}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/jogadores/999999999",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "jogadores",
+            "999999999"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Conflito idempotência",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 422\", () => pm.response.to.have.status(422));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/hal+json"
+          },
+          {
+            "key": "X-API-Key",
+            "value": "{{apiKey}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "X-Idempotency-Key",
+            "value": "{{runId}}-estadios"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"nome\": \"Outro\", \"endereco\": \"Outro\"}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/estadios",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "estadios"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Excluir salarios",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 204\", () => pm.response.to.have.status(204));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/hal+json"
+          },
+          {
+            "key": "X-API-Key",
+            "value": "{{apiKey}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/salarios/{{salariosId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "salarios",
+            "{{salariosId}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Excluir contratos",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 204\", () => pm.response.to.have.status(204));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/hal+json"
+          },
+          {
+            "key": "X-API-Key",
+            "value": "{{apiKey}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/contratos/{{contratosId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "contratos",
+            "{{contratosId}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Excluir jogadores",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 204\", () => pm.response.to.have.status(204));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/hal+json"
+          },
+          {
+            "key": "X-API-Key",
+            "value": "{{apiKey}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/jogadores/{{jogadoresId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "jogadores",
+            "{{jogadoresId}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Excluir equipes",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 204\", () => pm.response.to.have.status(204));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/hal+json"
+          },
+          {
+            "key": "X-API-Key",
+            "value": "{{apiKey}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/equipes/{{equipesId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "equipes",
+            "{{equipesId}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Excluir campeonatos",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 204\", () => pm.response.to.have.status(204));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/hal+json"
+          },
+          {
+            "key": "X-API-Key",
+            "value": "{{apiKey}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/campeonatos/{{campeonatosId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "campeonatos",
+            "{{campeonatosId}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Excluir estadios",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 204\", () => pm.response.to.have.status(204));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/hal+json"
+          },
+          {
+            "key": "X-API-Key",
+            "value": "{{apiKey}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/estadios/{{estadiosId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "estadios",
+            "{{estadiosId}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Revogar chave",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 204\", () => pm.response.to.have.status(204));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/hal+json"
+          },
+          {
+            "key": "X-API-Key",
+            "value": "{{adminKey}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api-keys/{{keyId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api-keys",
+            "{{keyId}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Chave revogada",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 401\", () => pm.response.to.have.status(401));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/hal+json"
+          },
+          {
+            "key": "X-API-Key",
+            "value": "{{apiKey}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/salarios",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "salarios"
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://palmeiras-api.onrender.com"
+    },
+    {
+      "key": "adminKey",
+      "value": ""
+    },
+    {
+      "key": "apiKey",
+      "value": ""
+    },
+    {
+      "key": "runId",
+      "value": ""
+    },
+    {
+      "key": "keyId",
+      "value": ""
+    },
+    {
+      "key": "estadiosId",
+      "value": ""
+    },
+    {
+      "key": "campeonatosId",
+      "value": ""
+    },
+    {
+      "key": "equipesId",
+      "value": ""
+    },
+    {
+      "key": "jogadoresId",
+      "value": ""
+    },
+    {
+      "key": "contratosId",
+      "value": ""
+    },
+    {
+      "key": "salariosId",
+      "value": ""
+    }
+  ]
+}

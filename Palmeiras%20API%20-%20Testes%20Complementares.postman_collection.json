@@ -1,0 +1,134 @@
+{
+  "info": {
+    "_postman_id": "f30e34bf-c94c-425d-9f01-dea991c3f7b8",
+    "name": "Palmeiras API - Testes Complementares",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Testes locais. Execute apenas Rate Limiting em 65 iterações com contador zerado, sem atraso. Execute os dois testes CORS separadamente, uma vez cada."
+  },
+  "item": [
+    {
+      "name": "Teste Rate Limiting",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/estadios?page=0&size=5",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "estadios"
+          ],
+          "query": [
+            {
+              "key": "page",
+              "value": "0"
+            },
+            {
+              "key": "size",
+              "value": "5"
+            }
+          ]
+        },
+        "description": "Execute somente esta requisição em 65 iterações, sem atraso, no servidor local com contador zerado e limite de 60 por minuto. Verifique HTTP 429 a partir da 61ª requisição na mesma janela."
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status permitido ou bloqueado\", () => pm.expect([200,429]).to.include(pm.response.code));",
+              "pm.test(\"Limite de 60\", () => pm.expect(pm.response.headers.get(\"X-Rate-Limit-Limit\")).to.eql(\"60\"));",
+              "if (pm.response.code === 429) { pm.test(\"Limite esgotado\", () => pm.expect(pm.response.headers.get(\"X-Rate-Limit-Remaining\")).to.eql(\"0\")); pm.test(\"Retry-After positivo\", () => pm.expect(Number(pm.response.headers.get(\"Retry-After\"))).to.be.above(0)); }",
+              "if (pm.info.iteration === 64) { pm.test(\"Bloqueio na última iteração\", () => pm.response.to.have.status(429)); }"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Teste CORS Permitido",
+      "request": {
+        "method": "OPTIONS",
+        "header": [
+          {
+            "key": "Origin",
+            "value": "http://localhost:3000"
+          },
+          {
+            "key": "Access-Control-Request-Method",
+            "value": "GET"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:8080/estadios",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "estadios"
+          ]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"CORS permitido\", () => pm.expect([200,204]).to.include(pm.response.code));",
+              "pm.test(\"Origem autorizada\", () => pm.expect(pm.response.headers.get(\"Access-Control-Allow-Origin\")).to.eql(\"http://localhost:3000\"));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Teste CORS Bloqueado",
+      "request": {
+        "method": "OPTIONS",
+        "header": [
+          {
+            "key": "Origin",
+            "value": "https://exemplo.com"
+          },
+          {
+            "key": "Access-Control-Request-Method",
+            "value": "GET"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:8080/estadios",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "estadios"
+          ]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"CORS bloqueado\", () => pm.response.to.have.status(403));",
+              "pm.test(\"Sem autorização de origem\", () => pm.expect(pm.response.headers.has(\"Access-Control-Allow-Origin\")).to.eql(false));"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
