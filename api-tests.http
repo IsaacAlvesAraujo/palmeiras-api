@@ -1,0 +1,12 @@
+@host = http://localhost:8080
+### Saúde
+GET {{host}}/health
+
+### Listar
+GET {{host}}/jogadores?page=0&size=5
+
+### Sem chave (401)
+GET {{host}}/salarios
+
+### Swagger JSON
+GET {{host}}/v3/api-docs

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Palmeiras API — plataforma para gerenciamento de jogadores, equipes, estádios, contratos e salários.">
+    <title>Palmeiras API</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<header class="topbar">
+    <a class="brand" href="/" aria-label="Palmeiras API - início">
+        <span class="brand-mark">P</span>
+        <span>
+            <strong>Palmeiras API</strong>
+            <small>REST • OpenAPI 3.1</small>
+        </span>
+    </a>
+    <nav>
+        <a href="#dashboard">Cadastros</a>
+        <a href="#recursos">Recursos</a>
+        <a href="/docs">Guia da API</a>
+        <a class="nav-docs" href="/swagger-ui.html">Swagger</a>
+    </nav>
+</header>
+
+<main>
+    <section class="hero">
+        <div class="hero-copy">
+            <span class="eyebrow"><span class="pulse"></span> API online</span>
+            <h1>Dados do Palmeiras,<br><em>organizados para criar.</em></h1>
+            <p class="hero-text">Uma API REST para gerenciar jogadores, equipes, estádios, contratos e salários, com documentação interativa integrada.</p>
+            <div class="actions">
+                <a class="btn btn-primary" href="/swagger-ui.html">Abrir Swagger <span>↗</span></a>
+                <a class="btn btn-secondary" href="/docs">Guia da API</a>
+            </div>
+            <div class="quick-links">
+                <a href="/jogadores">/jogadores</a>
+                <a href="/equipes">/equipes</a>
+                <a href="/estadios">/estadios</a>
+                <a href="/contratos">/contratos</a>
+                <a href="/salarios">/salarios</a>
+                <a href="/campeonatos">/campeonatos</a>
+            </div>
+        </div>
+        <div class="hero-card" aria-label="Resumo da API">
+            <div class="card-glow"></div>
+            <div class="crest">P</div>
+            <div class="hero-card-label">PALMEIRAS</div>
+            <div class="hero-card-title">API <span>REST</span></div>
+            <div class="hero-card-meta">
+                <div><small>DOCUMENTAÇÃO</small><strong>OpenAPI 3.1</strong></div>
+                <div><small>LICENÇA</small><strong>MIT</strong></div>
+            </div>
+        </div>
+    </section>
+
+    <section id="dashboard" class="section dashboard-section">
+        <div class="section-heading">
+            <span class="section-kicker">01 / Dados ao vivo</span>
+            <h2>Cadastros da API</h2>
+            <p>Os cards abaixo consultam o mesmo backend usado pelo Swagger e pelo Thunder Client. Cadastre em qualquer cliente e clique em Atualizar.</p>
+            <button id="refresh-data" class="btn btn-primary" type="button">Atualizar dados</button>
+        </div>
+        <div id="summary" class="summary-grid"></div>
+        <div id="data-sections" class="data-sections"><p class="loading">Carregando cadastros...</p></div>
+    </section>
+
+    <section id="recursos" class="section">
+        <div class="section-heading">
+            <span class="section-kicker">02 / Recursos</span>
+            <h2>O que você pode gerenciar</h2>
+            <p>Todos os recursos possuem endpoints REST documentados e testáveis diretamente pelo Swagger UI.</p>
+        </div>
+        <div class="resource-grid">
+            <a class="resource-card" href="/swagger-ui.html#/Jogador">
+                <span class="resource-number">01</span><span class="resource-icon">⚽</span>
+                <h3>Jogadores</h3><p>Cadastro, consulta, atualização e remoção.</p><span class="endpoint">/jogadores</span>
+            </a>
+            <a class="resource-card" href="/swagger-ui.html#/Equipe">
+                <span class="resource-number">02</span><span class="resource-icon">◆</span>
+                <h3>Equipes</h3><p>Gerencie equipes e seus relacionamentos.</p><span class="endpoint">/equipes</span>
+            </a>
+            <a class="resource-card" href="/swagger-ui.html#/Estadio">
+                <span class="resource-number">03</span><span class="resource-icon">⌂</span>
+                <h3>Estádios</h3><p>Cadastre nomes e endereços dos estádios.</p><span class="endpoint">/estadios</span>
+            </a>
+            <a class="resource-card" href="/swagger-ui.html#/Contrato">
+                <span class="resource-number">04</span><span class="resource-icon">▣</span>
+                <h3>Contratos</h3><p>Controle salários, duração e jogador vinculado.</p><span class="endpoint">/contratos</span>
+            </a>
+            <a class="resource-card" href="/swagger-ui.html#/Salario">
+                <span class="resource-number">05</span><span class="resource-icon">R$</span>
+                <h3>Salários</h3><p>Registre valores e cargos administrativos.</p><span class="endpoint">/salarios</span>
+            </a>
+            <a class="resource-card" href="/swagger-ui.html#/Campeonato">
+                <span class="resource-number">06</span><span class="resource-icon">★</span>
+                <h3>Campeonatos</h3><p>Competições relacionadas às equipes.</p><span class="endpoint">/campeonatos</span>
+            </a>
+        </div>
+    </section>
+
+    <section id="sobre" class="split-section">
+        <div>
+            <span class="section-kicker">03 / Developer experience</span>
+            <h2>Documentação que acompanha o código.</h2>
+            <p>A documentação é gerada a partir dos próprios controllers e modelos da aplicação. Use o Swagger para consultar os endpoints, visualizar schemas, enviar requisições e conferir as respostas.</p>
+        </div>
+        <div class="docs-panel">
+            <div class="terminal-top"><span></span><span></span><span></span></div>
+            <code><span class="muted">GET</span> /v3/api-docs
+                <br><span class="muted">GET</span> /swagger-ui.html
+                <br><span class="muted">GET</span> /docs
+                <br><span class="muted">GET</span> /h2-console</code>
+            <a href="/docs" class="panel-link">Ler guia completo →</a>
+        </div>
+    </section>
+</main>
+
+<footer>
+    <div><strong>Palmeiras API</strong><span>•</span><span>Java 17 + Spring Boot + JPA + H2</span></div>
+    <div><a href="/swagger-ui.html">Swagger</a><span>•</span><a href="/v3/api-docs">OpenAPI</a><span>•</span><a href="https://opensource.org/license/mit/" target="_blank" rel="noopener">MIT License</a></div>
+</footer>
+<script src="/js/app.js"></script>
+</body>
+</html>

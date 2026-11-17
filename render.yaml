@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: palmeiras-api
+    runtime: docker
+    healthCheckPath: /health
+    envVars:
+      - key: ADMIN_API_KEY
+        sync: false
+      - key: RATE_LIMIT
+        value: '60'

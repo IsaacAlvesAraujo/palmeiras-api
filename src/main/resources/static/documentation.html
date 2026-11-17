@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Documentação da Palmeiras API">
+    <title>Documentação — Palmeiras API</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .docs-wrap{max-width:1100px;margin:0 auto;padding:60px 24px 90px}.docs-hero{padding:42px 0 34px}.docs-hero h1{font-size:clamp(2.5rem,6vw,5rem);line-height:.98;margin:12px 0 20px}.docs-hero p{max-width:760px;color:#b9c2bd;font-size:1.08rem;line-height:1.75}.docs-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:26px}.docs-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-top:28px}.docs-card{background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.09);border-radius:18px;padding:24px}.docs-card h2{margin:0 0 12px}.docs-card p,.docs-card li{color:#b9c2bd;line-height:1.7}.docs-card ul{padding-left:20px}.docs-card code{background:rgba(255,255,255,.08);padding:3px 7px;border-radius:6px;color:#eaf1ec}.docs-table{width:100%;border-collapse:collapse;margin-top:16px}.docs-table th,.docs-table td{text-align:left;padding:13px 12px;border-bottom:1px solid rgba(255,255,255,.09);vertical-align:top}.docs-table th{color:#eaf1ec}.docs-table td{color:#b9c2bd}.method{font-weight:800;font-size:.82rem}.method.get{color:#7dd3fc}.method.post{color:#86efac}.method.put{color:#fde68a}.method.delete{color:#fca5a5}.example{background:#0a100d;border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:18px;overflow:auto;color:#d7e2db;line-height:1.65}.note{border-left:3px solid #8fbe32;padding:14px 18px;background:rgba(143,190,50,.07);color:#cbd7d0;border-radius:0 10px 10px 0;margin:18px 0}.toc a{color:#b7d86a;text-decoration:none}.toc a:hover{text-decoration:underline}@media(max-width:760px){.docs-grid{grid-template-columns:1fr}.docs-table{font-size:.9rem}.docs-wrap{padding-top:35px}}
+    </style>
+</head>
+<body>
+<header class="topbar">
+    <a class="brand" href="/" aria-label="Palmeiras API - início">
+        <span class="brand-mark">P</span><span><strong>Palmeiras API</strong><small>DOCUMENTAÇÃO</small></span>
+    </a>
+    <nav><a href="/">Início</a><a class="nav-docs" href="/swagger-ui.html">Swagger</a></nav>
+</header>
+
+<main class="docs-wrap">
+    <section class="docs-hero">
+        <span class="eyebrow"><span class="pulse"></span> Guia da API</span>
+        <h1>Entenda a API antes de testar.</h1>
+        <p>Esta página explica a finalidade dos recursos, o padrão dos endpoints, os códigos HTTP, a paginação e a forma de testar tudo pelo Swagger UI.</p>
+        <div class="docs-actions"><a class="btn btn-primary" href="/swagger-ui.html">Abrir Swagger ↗</a><a class="btn btn-secondary" href="/">Voltar ao início</a></div>
+    </section>
+
+    <div class="docs-grid">
+        <article class="docs-card toc">
+            <h2>O que existe aqui?</h2>
+            <ul>
+                <li><a href="#arquitetura">Arquitetura</a></li>
+                <li><a href="#paginação">Paginação</a></li>
+                <li><a href="#recursos">Recursos e endpoints</a></li>
+                <li><a href="#validacao">Validação</a></li>
+                <li><a href="#respostas">Códigos HTTP</a></li>
+                <li><a href="#teste">Roteiro de testes</a></li>
+            </ul>
+        </article>
+        <article class="docs-card">
+            <h2>Links rápidos</h2>
+            <p><code>/swagger-ui.html</code> — documentação interativa.</p>
+            <p><code>/v3/api-docs</code> — especificação OpenAPI em JSON.</p>
+            <p><code>/h2-console</code> — console do banco H2 em desenvolvimento.</p>
+        </article>
+    </div>
+
+    <section id="arquitetura" class="docs-card" style="margin-top:18px">
+        <h2>1. Arquitetura</h2>
+        <p>A aplicação usa Spring Boot para expor a API HTTP, Spring MVC para receber as requisições, Spring Data JPA para acessar o banco H2 e Jakarta Validation para validar os dados enviados.</p>
+        <table class="docs-table"><tr><th>Camada</th><th>Responsabilidade</th></tr><tr><td>Controller</td><td>Recebe HTTP, valida entrada e define respostas.</td></tr><tr><td>Repository</td><td>Conversa com o banco por meio do Spring Data JPA.</td></tr><tr><td>Model</td><td>Representa as entidades persistidas no banco.</td></tr><tr><td>OpenApiConfig</td><td>Define informações gerais da documentação.</td></tr><tr><td>Swagger UI</td><td>Permite visualizar e executar os endpoints.</td></tr></table>
+    </section>
+
+    <section id="paginação" class="docs-card" style="margin-top:18px">
+        <h2>2. Paginação</h2>
+        <p>Todos os endpoints de listagem usam <code>Pageable</code>. Isso significa que a API não precisa devolver todos os registros de uma vez.</p>
+        <div class="note"><strong>Exemplo:</strong> <code>GET /jogadores?page=0&amp;size=5&amp;sort=nome,asc</code><br>O índice começa em 0. Nesse exemplo, a API pede a primeira página, com no máximo 5 jogadores, ordenados pelo nome em ordem crescente.</div>
+        <table class="docs-table"><tr><th>Parâmetro</th><th>Função</th><th>Exemplo</th></tr><tr><td><code>page</code></td><td>Número da página, começando em 0.</td><td>0</td></tr><tr><td><code>size</code></td><td>Quantidade máxima de itens por página.</td><td>5</td></tr><tr><td><code>sort</code></td><td>Campo e direção da ordenação.</td><td>nome,asc</td></tr></table>
+        <p>A resposta <code>Page</code> também traz metadados como número da página, tamanho, quantidade total de elementos e quantidade total de páginas.</p>
+    </section>
+
+    <section id="recursos" class="docs-card" style="margin-top:18px">
+        <h2>3. Recursos e endpoints</h2>
+        <p>A API possui seis recursos. Cada um oferece CRUD completo e uma consulta personalizada paginada.</p>
+        <table class="docs-table">
+            <tr><th>Recurso</th><th>CRUD</th><th>Consulta personalizada</th></tr>
+            <tr><td>Jogadores</td><td><code>POST/GET/PUT/DELETE /jogadores</code></td><td><code>GET /jogadores/buscar?nome=Raphael</code></td></tr>
+            <tr><td>Equipes</td><td><code>POST/GET/PUT/DELETE /equipes</code></td><td><code>GET /equipes/buscar?nome=Palmeiras</code></td></tr>
+            <tr><td>Estádios</td><td><code>POST/GET/PUT/DELETE /estadios</code></td><td><code>GET /estadios/buscar?nome=Allianz</code></td></tr>
+            <tr><td>Contratos</td><td><code>POST/GET/PUT/DELETE /contratos</code></td><td><code>GET /contratos/buscar?duracaoMeses=24</code></td></tr>
+            <tr><td>Salários</td><td><code>POST/GET/PUT/DELETE /salarios</code></td><td><code>GET /salarios/buscar?cargo=Analista</code></td></tr>
+            <tr><td>Campeonatos</td><td><code>POST/GET/PUT/DELETE /campeonatos</code></td><td><code>GET /campeonatos/buscar?nome=Brasileiro</code></td></tr>
+        </table>
+        <p>Em cada recurso, <code>GET /recurso</code> lista, <code>GET /recurso/{id}</code> busca, <code>POST</code> cria, <code>PUT /{id}</code> atualiza e <code>DELETE /{id}</code> remove.</p>
+    </section>
+
+    <section id="validacao" class="docs-card" style="margin-top:18px">
+        <h2>4. Validação</h2>
+        <p>Os modelos usam <code>@NotBlank</code>, <code>@NotNull</code>, <code>@Size</code> e <code>@Positive</code>. Quando um campo obrigatório não é enviado corretamente, a requisição é rejeitada com erro de validação.</p>
+        <div class="example">POST /jogadores
+{
+  "nome": "Nome do jogador",
+  "posicao": "ATACANTE"
+}</div>
+    </section>
+
+    <section id="respostas" class="docs-card" style="margin-top:18px">
+        <h2>5. Códigos HTTP</h2>
+        <table class="docs-table"><tr><th>Código</th><th>Significado</th></tr><tr><td>200</td><td>Operação concluída com sucesso.</td></tr><tr><td>201</td><td>Recurso criado.</td></tr><tr><td>204</td><td>Recurso excluído sem conteúdo de resposta.</td></tr><tr><td>400</td><td>Dados inválidos ou requisição malformada.</td></tr><tr><td>404</td><td>ID informado não existe.</td></tr></table>
+    </section>
+
+    <section id="teste" class="docs-card" style="margin-top:18px">
+        <h2>6. Roteiro para testar a entrega</h2>
+        <ol>
+            <li>Abra o projeto e execute a aplicação.</li>
+            <li>Acesse <code>/docs</code> e depois clique em <strong>Abrir Swagger</strong>.</li>
+            <li>Em <strong>Jogadores → POST</strong>, crie pelo menos 11 jogadores.</li>
+            <li>Em <strong>Jogadores → GET</strong>, use <code>page=0</code> e <code>size=5</code>.</li>
+            <li>Teste <code>page=1</code> e compare os registros retornados.</li>
+            <li>Teste <code>sort=nome,asc</code> e depois <code>sort=nome,desc</code>.</li>
+            <li>Busque um ID existente e depois um ID inexistente para conferir 200 e 404.</li>
+            <li>Atualize um jogador com PUT e confirme com GET.</li>
+            <li>Exclua um jogador e confirme que o GET daquele ID retorna 404.</li>
+        </ol>
+        <div class="note">Se o professor avaliar a <strong>paginação</strong>, o ponto principal está nos GETs de listagem: eles recebem <code>Pageable</code> e são representados por <code>PagedModel</code>, com metadados e links HATEOAS. O Swagger deve mostrar <code>page</code>, <code>size</code> e <code>sort</code>.</div>
+    </section>
+</main>
+<footer><div><strong>Palmeiras API</strong><span>•</span><span>MIT License</span></div><div><a href="/swagger-ui.html">Swagger</a><span>•</span><a href="/">Início</a></div></footer>
+</body>
+</html>
